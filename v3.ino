@@ -5,7 +5,7 @@
     POSICIÓN INICIAL: NEUTRO (N)
     TODO: Añadir función extra que cambie sin embrague
     TODO: En el main, hacer que según la posición de un switch se llame 
-    a la función con o sin embrague.
+    a la función con o sin embrague SOLO cuando se sube de marcha.
 */
 
 // --- Pines de botones ---
@@ -47,6 +47,10 @@ const byte numeros[7] = {
   0b01101101, // 5: "5" (5ª marcha)
   0b01111101  // 6: "6" (6ª marcha)
 };
+
+void ejecutarCambio(int valvulaCambio, int direccion);
+void ejecutarCambioSinEmbrague(int valvulaCambio, int direccion);
+void mostrarMarcha();
 
 void setup() {
   pinMode(botonSubir, INPUT_PULLUP);
@@ -128,6 +132,25 @@ void ejecutarCambio(int valvulaCambio, int direccion) {
 
   secuenciaActiva = false;
   ultimoCambio = millis();
+}
+
+void ejecutarCambioSinEmbrague(int valvulaCambio, int direccion)
+{
+    if(direccion <= 0) return; // Solo permitir sin embrague al subir de marcha
+    secuenciaActiva = true;
+  
+    digitalWrite(valvulaCambio, HIGH);
+    delay(tiempoMarcha);
+    digitalWrite(valvulaCambio, LOW);
+
+    marchaActual += direccion;
+    if (marchaActual < 0) marchaActual = 0;
+    if (marchaActual > 6) marchaActual = 6;
+
+    mostrarMarcha();
+
+    secuenciaActiva = false;
+    ultimoCambio = millis();
 }
 
 void mostrarMarcha() {
