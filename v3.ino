@@ -23,6 +23,9 @@ const int valvulaExtra = 14;
 // a,b,c,d,e,f,g
 const int segmentPins[7] = {23, 22, 21, 19, 18, 5, 17};
 
+// --- Pin de control del modo sin embrague ---
+const int modoSinEmbrague = 15;
+
 // --- Tiempos (ms) ---
 const unsigned long tiempoEmbrague = 250;
 const unsigned long tiempoMarcha = 300;
@@ -56,6 +59,7 @@ void setup() {
   pinMode(botonSubir, INPUT_PULLUP);
   pinMode(botonBajar, INPUT_PULLUP);
   pinMode(botonExtra, INPUT_PULLUP);
+  pinMode(modoSinEmbrague, INPUT_PULLUP);
   
   pinMode(embrague, OUTPUT);
   pinMode(valvulaSubir, OUTPUT);
@@ -76,6 +80,7 @@ void loop() {
   bool subir = !digitalRead(botonSubir);   // Baja en la secuencia
   bool bajar = !digitalRead(botonBajar);   // Sube en la secuencia
   bool extra = !digitalRead(botonExtra);
+  bool sinEmbrague = !digitalRead(modoSinEmbrague);
   
   unsigned long ahora = millis();
   
@@ -87,12 +92,22 @@ void loop() {
     // BOTÓN SUBIR: Baja en la secuencia
     if (subir) {
       if (marchaActual == 0) {
-        // Desde 1ª salta directamente a 2ª (saltando el neutro)
-        ejecutarCambio(valvulaSubir, +2);
+        if(sinEmbrague){
+          // Desde 1ª salta directamente a 2ª (saltando el neutro) sin embrague
+          ejecutarCambioSinEmbrague(valvulaSubir, +2);
+        } else {
+          // Desde 1ª salta directamente a 2ª (saltando el neutro)
+          ejecutarCambio(valvulaSubir, +2);
+        }
       }
       else if (marchaActual >= 1 && marchaActual < 6) {
-        // Desde neutro o 2ª-5ª avanza normalmente
-        ejecutarCambio(valvulaSubir, +1);
+        if(sinEmbrague){
+          // Desde neutro o 2ª-5ª avanza normalmente sin embrague
+          ejecutarCambioSinEmbrague(valvulaSubir, +1);
+        } else {
+          // Desde neutro o 2ª-5ª avanza normalmente
+          ejecutarCambio(valvulaSubir, +1);
+        }
       }
     }
     
@@ -147,7 +162,7 @@ void ejecutarCambioSinEmbrague(int valvulaCambio, int direccion)
       ejecutarCambio(valvulaCambio, direccion);
       return;
     }
-    
+
     secuenciaActiva = true;
   
     digitalWrite(valvulaCambio, HIGH);
