@@ -39,16 +39,17 @@
   // --- Mapeo de marchas ---
   // marchaActual: 0=1ª, 1=N, 2=2ª, 3=3ª, 4=4ª, 5=5ª, 6=6ª
 
-  // --- Tabla de segmentos para display ---
-  // Formato: abcdefg (bit 0 = a, bit 6 = g)
+// --- Tabla de segmentos para números 0–6 ---
+// HE TENIDO PROBLEMAS CON EL WOKWI; REVISAR ESTO
+// Formato: gfedcba (bit 0 = a, bit 6 = g) -> ÁNODO COMÚN
   const byte numeros[7] = {
-    0b0110000, // 0: "1" (1ª marcha) -> segmentos b,c
+    0b0000110, // 0: "1" (1ª marcha) -> segmentos b,c
     0b0111111, // 1: "0" (Neutro) -> segmentos a,b,c,d,e,f
-    0b1101101, // 2: "2" (2ª marcha) -> segmentos a,b,d,e,g
-    0b1111001, // 3: "3" (3ª marcha) -> segmentos a,b,c,d,g
-    0b0110011, // 4: "4" (4ª marcha) -> segmentos b,c,f,g
-    0b1011011, // 5: "5" (5ª marcha) -> segmentos a,c,d,f,g
-    0b1011111  // 6: "6" (6ª marcha) -> segmentos a,c,d,e,f,g
+    0b1011011, // 2: "2" (2ª marcha) -> segmentos a,b,d,e,g
+    0b1001111, // 3: "3" (3ª marcha) -> segmentos a,b,c,d,g
+    0b1100110, // 4: "4" (4ª marcha) -> segmentos b,c,f,g
+    0b1101101, // 5: "5" (5ª marcha) -> segmentos a,c,d,f,g
+    0b1111101  // 6: "6" (6ª marcha) -> segmentos a,c,d,e,f,g
   };
 
   void ejecutarCambio(int valvulaCambio, int direccion);
@@ -182,11 +183,14 @@
       ultimoCambio = millis();
   }
 
+/*
+  Cambiar el ánodo común o cátodo en función del tipo de display
+*/
   void mostrarMarcha() {
     byte valor = numeros[marchaActual];
     
     for (int i = 0; i < 7; i++) {
       bool bit = (valor >> i) & 0x01; // Lee bit i para segmento i
-      digitalWrite(segmentPins[i], bit); // Cátodo común = HIGH enciende
+      digitalWrite(segmentPins[i], bit); // ánodo común = LOW enciende (!bit) / cátodo común = HIGH enciende (bit)
     }
   }
