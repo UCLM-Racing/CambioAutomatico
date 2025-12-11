@@ -1,11 +1,12 @@
 /*
+    VERSION 3
+    AUTOR: UCLM RACING TEAM
     CAMBIO SECUENCIAL NEUMÁTICO + DISPLAY 7 SEG (ÁNODO COMÚN)
     ADAPTADO PARA ESP32 REAL Y WOKWI
     PATRÓN: 1ª - N - 2ª - 3ª - 4ª - 5ª - 6ª
     POSICIÓN INICIAL: NEUTRO (N)
-    TODO: Añadir función extra que cambie sin embrague
-    TODO: En el main, hacer que según la posición de un switch se llame 
-    a la función con o sin embrague SOLO cuando se sube de marcha.
+    SE PUEDE ACTIVAR UN MODO "SIN EMBRAGUE" AL SUBIR DE MARCHA GRACIAS A UN
+    SWITCH ADICIONAL. AL BAJAR DE MARCHA SIEMPRE SE USA EMBRAGUE.
 */
 
 // --- Pines de botones ---
@@ -92,7 +93,7 @@ void loop() {
   // En caso contrario se ignora la pulsación
   if (!secuenciaActiva && (ahora - ultimoCambio > tiempoEntreCambios)) {
     
-    // BOTÓN SUBIR: Baja en la secuencia
+    // BOTÓN SUBIR: Sube de manera secuencial las marchas (1ª-6ª)
     if (subir) {
       // NOTA: 0 ES PRIMERA
       if (marchaActual == 0) {
@@ -104,7 +105,11 @@ void loop() {
           ejecutarCambio(valvulaSubir, +2);
         }
       }
-      else if (marchaActual >= 1 && marchaActual < 6) {
+      else if(marchaActual == 1){
+        // Desde neutro a 1ª marcha
+        ejecutarCambio(valvulaBajar, -1);
+      }
+      else if (marchaActual > 1 && marchaActual < 6) {
         if(sinEmbrague){
           // Desde neutro o 2ª-5ª avanza normalmente sin embrague
           ejecutarCambioSinEmbrague(valvulaSubir, +1);
@@ -115,8 +120,12 @@ void loop() {
       }
     }
     
-    // BOTÓN BAJAR: Sube en la secuencia
+    // BOTÓN BAJAR: Baja de manera secuencial las marchas (6ª-1ª)
     else if (bajar) {
+      if(marchaActual == 1){
+        // Si estamos en neutral no podemos "bajar" a primera (aunque realmente se haga así)
+        return;
+      }
       if (marchaActual == 2) {
         // Desde 2ª salta directamente a 1ª (saltando el neutro)
         ejecutarCambio(valvulaBajar, -2);
@@ -156,11 +165,16 @@ void ejecutarCambio(int valvulaCambio, int direccion) {
   ultimoCambio = millis();
 }
 
+/*
+  Función para ejecutar el cambio de marcha sin usar el embrague al subir de marcha.
+  Al bajar de marcha, siempre se usa el embrague por seguridad.
+*/
 void ejecutarCambioSinEmbrague(int valvulaCambio, int direccion)
 {
   /*
   En caso de bajar de marcha sin quitar el modo sin embrague,
   se llama a la función normal para que baje de marcha con el embrague.
+  Posteriormente se sale de la función para que no se ejecute el resto del código.
   */
   if(direccion <= 0){
     ejecutarCambio(valvulaCambio, direccion);
