@@ -9,8 +9,8 @@
   */
 
   // --- Pines de botones ---
-  const int botonSubir = 2;
-  const int botonBajar = 4;
+  const int botonSubir = 32;
+  const int botonBajar = 33;
   const int botonExtra = 13;   // Volver a neutro desde 2ª
 
   // --- Pines de salidas ---
@@ -24,10 +24,8 @@
   const int segmentPins[7] = {23, 22, 21, 19, 18, 5, 17};
 
   // --- Pin de control del modo sin embrague ---
-  const int modoSinEmbrague = 15;
-  const int ledModo = 4; // (opcional) LED indicador del modo sin embrague
-
-  // --- Tiempos (ms) ---
+  const int modoSinEmbrague = 16;
+  const int ledModo = 4; // LED indicador del modo sin embrague
   const unsigned long tiempoEmbrague = 250;
   const unsigned long tiempoMarcha = 300;
   const unsigned long tiempoDesembrague = 200;
@@ -42,14 +40,15 @@
   // marchaActual: 0=1ª, 1=N, 2=2ª, 3=3ª, 4=4ª, 5=5ª, 6=6ª
 
   // --- Tabla de segmentos para display ---
+  // Formato: abcdefg (bit 0 = a, bit 6 = g)
   const byte numeros[7] = {
-    0b00000110, // 0: "1" (1ª marcha)
-    0b00111111, // 1: "0" (Neutro - muestra 0)
-    0b01011011, // 2: "2" (2ª marcha)
-    0b01001111, // 3: "3" (3ª marcha)
-    0b01100110, // 4: "4" (4ª marcha)
-    0b01101101, // 5: "5" (5ª marcha)
-    0b01111101  // 6: "6" (6ª marcha)
+    0b0110000, // 0: "1" (1ª marcha) -> segmentos b,c
+    0b0111111, // 1: "0" (Neutro) -> segmentos a,b,c,d,e,f
+    0b1101101, // 2: "2" (2ª marcha) -> segmentos a,b,d,e,g
+    0b1111001, // 3: "3" (3ª marcha) -> segmentos a,b,c,d,g
+    0b0110011, // 4: "4" (4ª marcha) -> segmentos b,c,f,g
+    0b1011011, // 5: "5" (5ª marcha) -> segmentos a,c,d,f,g
+    0b1011111  // 6: "6" (6ª marcha) -> segmentos a,c,d,e,f,g
   };
 
   void ejecutarCambio(int valvulaCambio, int direccion);
@@ -94,6 +93,7 @@
       
       // BOTÓN SUBIR: Baja en la secuencia
       if (subir) {
+        // NOTA: 0 ES PRIMERA
         if (marchaActual == 0) {
           if(sinEmbrague){
             // Desde 1ª salta directamente a 2ª (saltando el neutro) sin embrague
@@ -186,7 +186,7 @@
     byte valor = numeros[marchaActual];
     
     for (int i = 0; i < 7; i++) {
-      bool bit = (valor >> i) & 0x01;
-      digitalWrite(segmentPins[i], !bit); // Ánodo común = LOW enciende
+      bool bit = (valor >> i) & 0x01; // Lee bit i para segmento i
+      digitalWrite(segmentPins[i], bit); // Cátodo común = HIGH enciende
     }
   }
