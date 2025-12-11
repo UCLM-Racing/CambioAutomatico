@@ -39,9 +39,8 @@
   // --- Mapeo de marchas ---
   // marchaActual: 0=1ª, 1=N, 2=2ª, 3=3ª, 4=4ª, 5=5ª, 6=6ª
 
-// --- Tabla de segmentos para números 0–6 ---
-// HE TENIDO PROBLEMAS CON EL WOKWI; REVISAR ESTO
-// Formato: gfedcba (bit 0 = a, bit 6 = g) -> ÁNODO COMÚN
+  // --- Tabla de segmentos para display ---
+  // Formato: abcdefg (bit 0 = a, bit 6 = g)
   const byte numeros[7] = {
     0b0000110, // 0: "1" (1ª marcha) -> segmentos b,c
     0b0111111, // 1: "0" (Neutro) -> segmentos a,b,c,d,e,f
@@ -94,7 +93,6 @@
       
       // BOTÓN SUBIR: Baja en la secuencia
       if (subir) {
-        // NOTA: 0 ES PRIMERA
         if (marchaActual == 0) {
           if(sinEmbrague){
             // Desde 1ª salta directamente a 2ª (saltando el neutro) sin embrague
@@ -151,6 +149,7 @@
     if (marchaActual > 6) marchaActual = 6;
     
     mostrarMarcha();
+    Serial.println(marchaActual);
 
     secuenciaActiva = false;
     ultimoCambio = millis();
@@ -183,14 +182,11 @@
       ultimoCambio = millis();
   }
 
-/*
-  Cambiar el ánodo común o cátodo en función del tipo de display
-*/
   void mostrarMarcha() {
     byte valor = numeros[marchaActual];
     
     for (int i = 0; i < 7; i++) {
       bool bit = (valor >> i) & 0x01; // Lee bit i para segmento i
-      digitalWrite(segmentPins[i], bit); // ánodo común = LOW enciende (!bit) / cátodo común = HIGH enciende (bit)
+      digitalWrite(segmentPins[i], bit); // Ánodo común = LOW enciende
     }
   }
