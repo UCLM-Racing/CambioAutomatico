@@ -25,6 +25,7 @@ const int segmentPins[7] = {23, 22, 21, 19, 18, 5, 17};
 
 // --- Pin de control del modo sin embrague ---
 const int modoSinEmbrague = 15;
+const int ledModo = 4; // (opcional) LED indicador del modo sin embrague
 
 // --- Tiempos (ms) ---
 const unsigned long tiempoEmbrague = 250;
@@ -65,6 +66,7 @@ void setup() {
   pinMode(valvulaSubir, OUTPUT);
   pinMode(valvulaBajar, OUTPUT);
   pinMode(valvulaExtra, OUTPUT);
+  pinMode(ledModo, OUTPUT);
   
   for (int i = 0; i < 7; i++) pinMode(segmentPins[i], OUTPUT);
   
@@ -81,6 +83,7 @@ void loop() {
   bool bajar = !digitalRead(botonBajar);   // Sube en la secuencia
   bool extra = !digitalRead(botonExtra);
   bool sinEmbrague = !digitalRead(modoSinEmbrague);
+  digitalWrite(ledModo, sinEmbrague ? HIGH : LOW); // Indicador modo sin embrague -> Feedback con un LED
   
   unsigned long ahora = millis();
   
