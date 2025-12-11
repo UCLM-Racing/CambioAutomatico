@@ -1,9 +1,12 @@
-// ===============================
-// CAMBIO SECUENCIAL NEUMÁTICO + DISPLAY 7 SEG (ÁNODO COMÚN)
-// ADAPTADO PARA ESP32 REAL Y WOKWI
-// PATRÓN: 1ª - N - 2ª - 3ª - 4ª - 5ª - 6ª
-// POSICIÓN INICIAL: NEUTRO (N)
-// ===============================
+/*
+    CAMBIO SECUENCIAL NEUMÁTICO + DISPLAY 7 SEG (ÁNODO COMÚN)
+    ADAPTADO PARA ESP32 REAL Y WOKWI
+    PATRÓN: 1ª - N - 2ª - 3ª - 4ª - 5ª - 6ª
+    POSICIÓN INICIAL: NEUTRO (N)
+    TODO: Añadir función extra que cambie sin embrague
+    TODO: En el main, hacer que según la posición de un switch se llame 
+    a la función con o sin embrague.
+*/
 
 // --- Pines de botones ---
 const int botonSubir = 2;
