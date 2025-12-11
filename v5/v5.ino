@@ -80,8 +80,8 @@ void setup() {
 }
 
 void loop() {
-  bool subir = !digitalRead(botonSubir);   // Baja en la secuencia
-  bool bajar = !digitalRead(botonBajar);   // Sube en la secuencia
+  bool subir = !digitalRead(botonSubir);   // Secuencia hacia adelante
+  bool bajar = !digitalRead(botonBajar);   // Secuencia hacia atrás
   bool extra = !digitalRead(botonExtra);
   bool sinEmbrague = !digitalRead(modoSinEmbrague);
   digitalWrite(ledModo, sinEmbrague ? HIGH : LOW); // Indicador modo sin embrague -> Feedback con un LED
@@ -105,10 +105,13 @@ void loop() {
           ejecutarCambio(valvulaSubir, +2);
         }
       }
+
+      // Desde 1ª va a Neutra
       else if(marchaActual == 1){
-        // Desde neutro a 1ª marcha
         ejecutarCambio(valvulaBajar, -1);
       }
+
+      // De 2ª en adelante sube normal hasta 6ª
       else if (marchaActual > 1 && marchaActual < 6) {
         if(sinEmbrague){
           // Desde neutro o 2ª-5ª avanza normalmente sin embrague
@@ -120,8 +123,11 @@ void loop() {
       }
     }
     
-    // BOTÓN BAJAR: Baja de manera secuencial las marchas (6ª-1ª)
+    // ===========================
+    //   BOTÓN BAJAR
+    // ===========================
     else if (bajar) {
+      // Desde NEUTRA NO SE BAJA
       if(marchaActual == 1){
         // Si estamos en neutral no podemos "bajar" a primera (aunque realmente se haga así)
         return;
@@ -135,8 +141,11 @@ void loop() {
         ejecutarCambio(valvulaBajar, -1);
       }
     }
-      // BOTÓN EXTRA: Volver a neutro desde 2ª marcha
-      else if (extra && marchaActual == 2) {  // marchaActual==2 es 2ª marcha
+
+    // ===========================
+    // BOTÓN EXTRA: Devolver a NEUTRO desde 2ª
+    // ===========================
+    else if (extra && marchaActual == 2) {  // marchaActual==2 es 2ª marcha
       ejecutarCambio(valvulaExtra, -1);
     }
   }
