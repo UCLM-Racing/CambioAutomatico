@@ -79,6 +79,9 @@ void loop() {
   
   unsigned long ahora = millis();
   
+  // Esto es una barrera para evitar múltiples cambios en una misma pulsación 
+  // Si ahora - ultimoCambio > tiempoEntreCambios, se permite un nuevo cambio => ahora (x) - ultimoCambio (y) > tiempoEntreCambios (800) => x - y > 800
+  // En caso contrario se ignora la pulsación
   if (!secuenciaActiva && (ahora - ultimoCambio > tiempoEntreCambios)) {
     
     // BOTÓN SUBIR: Baja en la secuencia
@@ -136,7 +139,15 @@ void ejecutarCambio(int valvulaCambio, int direccion) {
 
 void ejecutarCambioSinEmbrague(int valvulaCambio, int direccion)
 {
-    if(direccion <= 0) return; // Solo permitir sin embrague al subir de marcha
+    /*
+    En caso de bajar de marcha sin quitar el modo sin embrague,
+    se llama a la función normal para que baje de marcha con el embrague.
+    */
+    if(direccion <= 0){
+      ejecutarCambio(valvulaCambio, direccion);
+      return;
+    }
+    
     secuenciaActiva = true;
   
     digitalWrite(valvulaCambio, HIGH);
